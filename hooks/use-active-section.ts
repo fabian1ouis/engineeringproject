@@ -24,6 +24,7 @@ export function useActiveSection() {
   const [activeColor, setActiveColor] = useState<SectionColor>("primary")
   const [isDarkBackground, setIsDarkBackground] = useState(true)
   const [isDarkTheme, setIsDarkTheme] = useState(false)
+  const [activeSection, setActiveSection] = useState<string>("home")
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains("dark")
@@ -50,6 +51,7 @@ export function useActiveSection() {
           if (scrollPosition >= offsetTop && scrollPosition < offsetTop + offsetHeight) {
             setActiveColor(section.color)
             setIsDarkBackground(section.isDark)
+            setActiveSection(section.id)
             return
           }
         }
@@ -60,5 +62,5 @@ export function useActiveSection() {
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  return { activeColor, isDarkBackground, isDarkTheme }
+  return { activeColor, isDarkBackground, isDarkTheme, activeSection }
 }

@@ -10,7 +10,7 @@ import { useActiveSection } from "@/hooks/use-active-section"
 export function Navigation() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { activeColor, isDarkBackground, isDarkTheme } = useActiveSection()
+  const { activeColor, isDarkBackground, isDarkTheme, activeSection } = useActiveSection()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -87,6 +87,21 @@ export function Navigation() {
   const textColorMutedClass = getTextColorMuted()
   const underlineColor = getUnderlineColor()
 
+  const isLinkActive = (href: string) => {
+    return `#${activeSection}` === href
+  }
+
+  const getActiveLinkClass = (href: string) => {
+    if (isLinkActive(href)) {
+      return isDarkTheme
+        ? "text-white font-semibold"
+        : isDarkBackground
+          ? "text-white font-semibold"
+          : "text-black font-semibold"
+    }
+    return textColorMutedClass
+  }
+
   return (
     <nav className={getNavbarClasses()}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -104,14 +119,14 @@ export function Navigation() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`text-sm lg:text-base font-medium ${textColorMutedClass} ${textColorHoverClass} transition-colors duration-300 relative group`}
+                className={`text-sm lg:text-base font-medium ${getActiveLinkClass(link.href)} ${textColorHoverClass} transition-all duration-300 relative group`}
                 style={{
                   animation: `fadeInDown 0.6s ease-out ${index * 0.1}s both`,
                 }}
               >
                 {link.label}
                 <span
-                  className={`absolute bottom-0 left-0 w-0 h-0.5 ${underlineColor} group-hover:w-full transition-all duration-300`}
+                  className={`absolute bottom-0 left-0 ${isLinkActive(link.href) ? "w-full" : "w-0 group-hover:w-full"} h-0.5 ${underlineColor} transition-all duration-300`}
                 />
               </Link>
             ))}
@@ -149,7 +164,7 @@ export function Navigation() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-medium ${textColorMutedClass} ${textColorHoverClass} transition-colors py-2 px-3 rounded-md hover:bg-primary-foreground/10`}
+                  className={`text-sm font-medium ${getActiveLinkClass(link.href)} ${textColorHoverClass} transition-all py-2 px-3 rounded-md ${isLinkActive(link.href) ? "bg-primary-foreground/20" : "hover:bg-primary-foreground/10"}`}
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   {link.label}
