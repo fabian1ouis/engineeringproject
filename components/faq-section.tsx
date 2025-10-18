@@ -1,6 +1,11 @@
+"use client"
+
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { useScrollAnimation } from "@/hooks/use-scroll-animation"
 
 export function FAQSection() {
+  const { ref, isVisible } = useScrollAnimation()
+
   const faqs = [
     {
       question: "What services do you offer?",
@@ -35,11 +40,22 @@ export function FAQSection() {
   ]
 
   return (
-    <section id="faq" className="py-24 bg-secondary/30">
+    <section id="faq" className="py-24 bg-secondary/30" ref={ref}>
       <div className="container mx-auto px-4">
         <div className="max-w-3xl mx-auto text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6 text-balance">Frequently Asked Questions</h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <h2
+            className={`text-4xl md:text-5xl font-bold mb-6 text-balance transition-all duration-700 ${
+              isVisible ? "animate-slide-in-right" : "opacity-0 translate-x-12"
+            }`}
+          >
+            Frequently Asked Questions
+          </h2>
+          <p
+            className={`text-lg text-muted-foreground leading-relaxed transition-all duration-700 ${
+              isVisible ? "animate-fade-in-up" : "opacity-0 translate-y-8"
+            }`}
+            style={{ transitionDelay: "0.2s" }}
+          >
             Find answers to common questions about our services and process
           </p>
         </div>
@@ -47,18 +63,22 @@ export function FAQSection() {
         <div className="max-w-3xl mx-auto">
           <Accordion type="single" collapsible className="space-y-4">
             {faqs.map((faq, index) => (
-              <AccordionItem
+              <div
                 key={index}
-                value={`item-${index}`}
-                className="bg-card border border-border rounded-lg px-6"
+                className={`transition-all duration-700 ${
+                  isVisible ? "animate-fade-in-up" : "opacity-0 translate-y-8"
+                }`}
+                style={{ transitionDelay: `${0.1 + index * 0.05}s` }}
               >
-                <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-base text-muted-foreground leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
+                <AccordionItem value={`item-${index}`} className="bg-card border border-border rounded-lg px-6">
+                  <AccordionTrigger className="text-left text-lg font-semibold hover:no-underline">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-base text-muted-foreground leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              </div>
             ))}
           </Accordion>
         </div>
