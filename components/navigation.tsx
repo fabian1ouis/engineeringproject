@@ -45,6 +45,16 @@ export function Navigation() {
     return `${baseClasses} ${colorClasses[activeColor]} ${scrollClasses}`
   }
 
+  const getMobileMenuClasses = () => {
+    const colorClasses = {
+      primary: `bg-primary/95 dark:bg-primary/90`,
+      secondary: `bg-secondary/95 dark:bg-secondary/90`,
+      accent: `bg-accent/95 dark:bg-accent/90`,
+      muted: `bg-muted/95 dark:bg-muted/90`,
+    }
+    return `md:hidden py-4 border-t border-primary-foreground/20 ${colorClasses[activeColor]} animate-fade-in-down`
+  }
+
   const getTextColor = () => {
     // In dark theme, always use light text for better contrast
     if (isDarkTheme) {
@@ -133,7 +143,7 @@ export function Navigation() {
 
         {/* Mobile Navigation */}
         {isMobileMenuOpen && (
-          <div className="md:hidden py-4 border-t border-primary-foreground/20 bg-primary/95 dark:bg-primary/90 animate-fade-in-down">
+          <div className={getMobileMenuClasses()}>
             <div className="flex flex-col gap-3 px-2">
               {navLinks.map((link) => (
                 <Link
