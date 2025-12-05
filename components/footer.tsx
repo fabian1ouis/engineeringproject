@@ -1,6 +1,39 @@
+"use client"
+
+import type React from "react"
+
 import Link from "next/link"
+import { useState } from "react"
+import { toast } from "sonner"
 
 export function Footer() {
+  const [email, setEmail] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  const handleNewsletterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/newsletter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to subscribe")
+      }
+
+      toast.success("Successfully subscribed to our newsletter!")
+      setEmail("")
+    } catch (err) {
+      toast.error("Failed to subscribe. Please try again.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <footer className="bg-primary text-primary-foreground py-16">
       <div className="container mx-auto px-4">
@@ -64,16 +97,24 @@ export function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Newsletter</h4>
             <p className="text-primary-foreground/80 mb-4 text-sm">Subscribe to get the latest updates and insights.</p>
-            <div className="flex flex-col gap-3">
+            <form onSubmit={handleNewsletterSubmit} className="flex flex-col gap-3">
               <input
                 type="email"
                 placeholder="Your email"
-                className="flex-1 px-3 py-2 rounded bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
+                required
+                className="flex-1 px-3 py-2 rounded bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary-foreground/50 disabled:opacity-50"
               />
-              <button className="px-4 py-2 bg-primary-foreground text-primary rounded font-semibold hover:bg-primary-foreground/90 transition-colors w-full">
-                Subscribe
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-primary-foreground text-primary rounded font-semibold hover:bg-primary-foreground/90 transition-colors w-full disabled:opacity-50"
+              >
+                {loading ? "Subscribing..." : "Subscribe"}
               </button>
-            </div>
+            </form>
           </div>
         </div>
         <div className="border-t border-primary-foreground/20 pt-8 text-center text-primary-foreground/80 text-sm">

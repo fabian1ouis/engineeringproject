@@ -2,20 +2,51 @@
 
 import type React from "react"
 
+import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook } from "lucide-react"
+import { Mail, Phone, MapPin, Linkedin, Twitter, Facebook, AlertCircle, Loader2 } from "lucide-react"
 import { useScrollAnimation } from "@/hooks/use-scroll-animation"
+import { toast } from "sonner"
 
 export function ContactSection() {
   const { ref, isVisible } = useScrollAnimation()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    alert("Thank you for your message! We will get back to you soon.")
+    setError("")
+    setLoading(true)
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+
+      if (!response.ok) {
+        throw new Error("Failed to send message")
+      }
+
+      toast.success("Thank you for your message! We will get back to you soon.")
+      setFormData({ name: "", email: "", subject: "", message: "" })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred")
+      toast.error("Failed to send message. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -51,27 +82,66 @@ export function ContactSection() {
                 <CardTitle>Send us a Message</CardTitle>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 rounded-lg flex items-start gap-2">
+                    <AlertCircle className="text-red-600 mt-0.5 flex-shrink-0" size={18} />
+                    <p className="text-red-800 dark:text-red-200 text-sm">{error}</p>
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="contact-name">Name</Label>
-                      <Input id="contact-name" required />
+                      <Input
+                        id="contact-name"
+                        required
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        disabled={loading}
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="contact-email">Email</Label>
-                      <Input id="contact-email" type="email" required />
+                      <Input
+                        id="contact-email"
+                        type="email"
+                        required
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        disabled={loading}
+                      />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="contact-subject">Subject</Label>
-                    <Input id="contact-subject" required />
+                    <Input
+                      id="contact-subject"
+                      required
+                      value={formData.subject}
+                      onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+                      disabled={loading}
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="contact-message">Message</Label>
-                    <Textarea id="contact-message" rows={5} required />
+                    <Textarea
+                      id="contact-message"
+                      rows={5}
+                      required
+                      value={formData.message}
+                      onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                      disabled={loading}
+                    />
                   </div>
-                  <Button type="submit" size="lg" className="w-full">
-                    Send Message
+                  <Button type="submit" size="lg" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      "Send Message"
+                    )}
                   </Button>
                 </form>
               </CardContent>
